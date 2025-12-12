@@ -162,8 +162,8 @@ export default function OmniClimaPage() {
       const tmfp = tmfpInput?.value || '';
 
       const params = new URLSearchParams({
-        uid: '019a913c-483e-7c52-ba2a-c2435daa4254',
-        key: 'df01e23521627b9519a81f',
+        uid: '019a913b-eae1-760b-8bd7-28a78e907593',
+        key: 'b6661cc48612c9c2d65d22',
         offer: '530',
         lp: '530',
         name: fullName,
