@@ -5,7 +5,6 @@ import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import '../airwave/airwave.css';
 import { saveUserDataToStorage } from '@/app/lib/facebook/capi';
-import { saveConversionData } from '@/app/lib/google/gtag';
 
 // Hook a görgetési animációhoz
 function useScrollAnimation() {
@@ -208,12 +207,6 @@ export default function LandingPage() {
     });
 
     console.log('[Form] User data saved:', { nome, cognome });
-
-    // Save conversion data for Google Ads tracking
-    saveConversionData('g-airwave', {
-      value: 12990,
-      currency: 'HUF',
-    });
 
     // Network API call
     try {

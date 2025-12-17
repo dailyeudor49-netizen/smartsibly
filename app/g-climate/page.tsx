@@ -12,7 +12,6 @@ import {
   Trophy, Banknote, Timer, Lock, BadgeCheck, Radio, Wallet, MapPin,
   ClipboardEdit, PhoneCall, PackageCheck, Waves, Info
 } from 'lucide-react';
-import { saveConversionData } from '@/app/lib/google/gtag';
 
 // --- CONFIGURAZIONE E STILI INLINE (PER RENDERE IL FILE AUTONOMO) ---
 const CustomStyles = () => (
@@ -156,12 +155,6 @@ export default function OmniClimaPage() {
     e.preventDefault();
 
     const { fullName, fullAddress, phone } = formState;
-
-    // Save conversion data for Google Ads tracking
-    saveConversionData('g-climate', {
-      value: 28599,
-      currency: 'HUF',
-    });
 
     // Network API call
     try {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ThankYouPage() {
   const [orderCode, setOrderCode] = useState('');
@@ -12,16 +12,6 @@ export default function ThankYouPage() {
       sessionStorage.setItem('orderCode', code);
     }
     setOrderCode(code);
-
-    // Google Ads Conversion Tracking
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'conversion', {
-        'send_to': 'AW-17746256753/H1fTCJyYsMQbEPHGiY5C',
-        'value': 1.0,
-        'currency': 'PLN',
-        'transaction_id': code
-      });
-    }
   }, []);
 
   return (

@@ -1,136 +1,77 @@
-// Google Ads Conversion Tracking Module
-
-export interface GoogleAdsConfig {
-  conversionId: string;
-  conversionLabel: string;
-}
-
-export interface ConversionData {
-  value: number;
-  currency?: string;
-  transactionId?: string;
-}
-
-// Configuration for each landing page
-export const GOOGLE_ADS_CONFIG: Record<string, GoogleAdsConfig> = {
-  'g-airwave': {
-    conversionId: 'AW-16767546857',
-    conversionLabel: 'CMadCIy0w8wbEOnrsbs-',
-  },
-  'g-climate': {
-    conversionId: 'AW-16767546857',
-    conversionLabel: 'CMadCIy0w8wbEOnrsbs-',
-  },
-};
-
-// Storage key for conversion data
-const CONVERSION_DATA_KEY = 'g_conversion_data';
-const LANDING_SOURCE_KEY = 'g_landing_source';
+import { GoogleAdsCountryConfig } from '@/app/config/google-ads';
 
 /**
- * Save conversion data to localStorage before redirecting to thank you page
+ * Track Google Ads page view event
  */
-export function saveConversionData(
-  landingSource: string,
-  data: ConversionData
-): void {
-  if (typeof window === 'undefined') return;
-
-  try {
-    localStorage.setItem(CONVERSION_DATA_KEY, JSON.stringify(data));
-    localStorage.setItem(LANDING_SOURCE_KEY, landingSource);
-  } catch (error) {
-    console.error('[GTAG] Failed to save conversion data:', error);
-  }
-}
-
-/**
- * Retrieve conversion data from localStorage
- */
-export function getConversionData(): {
-  landingSource: string | null;
-  data: ConversionData | null;
-} {
-  if (typeof window === 'undefined') {
-    return { landingSource: null, data: null };
-  }
-
-  try {
-    const landingSource = localStorage.getItem(LANDING_SOURCE_KEY);
-    const dataStr = localStorage.getItem(CONVERSION_DATA_KEY);
-    const data = dataStr ? JSON.parse(dataStr) : null;
-    return { landingSource, data };
-  } catch (error) {
-    console.error('[GTAG] Failed to get conversion data:', error);
-    return { landingSource: null, data: null };
-  }
-}
-
-/**
- * Clear conversion data from localStorage after tracking
- */
-export function clearConversionData(): void {
-  if (typeof window === 'undefined') return;
-
-  try {
-    localStorage.removeItem(CONVERSION_DATA_KEY);
-    localStorage.removeItem(LANDING_SOURCE_KEY);
-  } catch (error) {
-    console.error('[GTAG] Failed to clear conversion data:', error);
-  }
-}
-
-/**
- * Get the Google Ads config for a specific landing
- */
-export function getGoogleAdsConfig(landingSource: string): GoogleAdsConfig | null {
-  return GOOGLE_ADS_CONFIG[landingSource] || null;
-}
-
-/**
- * Track Google Ads conversion - call this on the thank you page
- */
-export function trackGoogleAdsConversion(
-  config: GoogleAdsConfig,
-  data: ConversionData
-): void {
-  if (typeof window === 'undefined') return;
-
-  // Ensure gtag is available
-  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
-  if (!gtag) {
-    console.warn('[GTAG] gtag not available');
+export function trackGoogleAdsPageView(conversionId: string): void {
+  if (typeof window === 'undefined' || !window.gtag) {
+    console.warn('[Google Ads] gtag not loaded yet');
     return;
   }
 
-  gtag('event', 'conversion', {
+  window.gtag('event', 'page_view', {
+    send_to: conversionId,
+  });
+  console.log('[Google Ads] PageView tracked');
+}
+
+/**
+ * Track Google Ads view content event (for landing pages)
+ */
+export function trackGoogleAdsViewContent(config: GoogleAdsCountryConfig): void {
+  if (typeof window === 'undefined' || !window.gtag) {
+    console.warn('[Google Ads] gtag not loaded yet');
+    return;
+  }
+
+  window.gtag('event', 'view_item', {
     send_to: `${config.conversionId}/${config.conversionLabel}`,
-    value: data.value,
-    currency: data.currency || 'HUF',
-    transaction_id: data.transactionId || `tx_${Date.now()}`,
+    currency: config.currency,
   });
+  console.log('[Google Ads] ViewContent tracked for:', config.conversionId);
+}
 
-  console.log('[GTAG] Conversion tracked:', {
+/**
+ * Track Google Ads conversion (purchase) event
+ */
+export function trackGoogleAdsConversion(
+  config: GoogleAdsCountryConfig,
+  value: number,
+  transactionId?: string
+): void {
+  if (typeof window === 'undefined' || !window.gtag) {
+    console.warn('[Google Ads] gtag not loaded yet');
+    return;
+  }
+
+  window.gtag('event', 'conversion', {
+    send_to: `${config.conversionId}/${config.conversionLabel}`,
+    value: value,
+    currency: config.currency,
+    transaction_id: transactionId || `txn_${Date.now()}`,
+  });
+  console.log('[Google Ads] Conversion tracked:', {
     conversionId: config.conversionId,
-    value: data.value,
+    value,
+    currency: config.currency,
   });
 }
 
 /**
- * Generate the Google Ads gtag script tag content
+ * Initialize gtag script
  */
-export function getGtagScriptSrc(conversionId: string): string {
-  return `https://www.googletagmanager.com/gtag/js?id=${conversionId}`;
-}
+export function initGtagScript(conversionIds: string[]): string {
+  if (conversionIds.length === 0) return '';
 
-/**
- * Generate the inline gtag initialization script
- */
-export function getGtagInitScript(conversionId: string): string {
+  const primaryId = conversionIds[0];
+  const additionalConfigs = conversionIds.slice(1).map(id => `gtag('config', '${id}');`).join('\n');
+
   return `
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '${conversionId}');
+    gtag('config', '${primaryId}');
+    ${additionalConfigs}
+    console.log('[Google Ads] Initialized with IDs:', ${JSON.stringify(conversionIds)});
   `;
 }
