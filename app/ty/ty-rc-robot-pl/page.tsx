@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ThankYouPage() {
   const [orderCode, setOrderCode] = useState('');
@@ -10,7 +10,7 @@ export default function ThankYouPage() {
     if (stored) {
       setOrderCode(stored);
     } else {
-      const newCode = 'RPL-' + Dziśth.floor(100000 + Dziśth.random() * 900000).toString();
+      const newCode = 'RPL-' + Math.floor(100000 + Math.random() * 900000).toString();
       sessionStorage.setItem('orderCode', newCode);
       setOrderCode(newCode);
     }
