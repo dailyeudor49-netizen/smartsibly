@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import GoogleAdsPixel from "./components/GoogleAdsPixel";
+import FacebookPixel from "./components/FacebookPixel";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${dmSans.variable} font-sans antialiased`}>
         <GoogleAdsPixel />
+        <FacebookPixel />
         <Header />
         <main>{children}</main>
         <Footer />
