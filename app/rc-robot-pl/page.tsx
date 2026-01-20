@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
+import { saveUserDataToStorage } from '@/app/lib/facebook/capi';
 import {
   Star, CheckCircle, Shield, Zap, ChevronDown, ChevronLeft, ChevronRight,
   Timer, Truck, X, Wind, Battery, Navigation, Smartphone, Trash2, Droplets,
@@ -116,6 +117,15 @@ export default function RobotAspirapolvereProLanding() {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params.toString(),
+      });
+
+      // Salva i dati utente per il tracking Facebook CAPI
+      const [nome, ...cognomeParts] = orderData.name.trim().split(' ');
+      saveUserDataToStorage({
+        nome: nome || '',
+        cognome: cognomeParts.join(' ') || '',
+        telefono: orderData.phone || '',
+        indirizzo: orderData.address || '',
       });
 
       router.push('/ty/ty-rc-robot-pl');
